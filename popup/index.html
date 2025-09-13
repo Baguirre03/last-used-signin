@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Last Used Login Helper</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>⭐ Last Used Logins</h1>
+        <p>Track your preferred signin methods across websites</p>
+      </header>
+
+      <main>
+        <div class="current-site" id="current-site">
+          <h2>Current Site</h2>
+          <div class="site-info" id="site-info">
+            <span class="domain" id="current-domain">Loading...</span>
+            <div class="last-used" id="current-last-used">
+              <span class="provider" id="current-provider">None yet</span>
+              <button
+                class="clear-btn"
+                id="clear-current"
+                title="Clear for this site"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-section">
+          <h2>All Sites</h2>
+          <div class="search-box">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search domains..."
+            />
+          </div>
+          <div class="sites-list" id="sites-list">
+            <div class="loading">Loading your login history...</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-secondary" id="clear-all">
+            Clear All Data
+          </button>
+          <button class="btn btn-primary" id="refresh">Refresh</button>
+        </div>
+      </main>
+    </div>
+
+    <script src="../dist/popup.js"></script>
+  </body>
+</html>

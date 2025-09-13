@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Last Used Login Helper",
+  "version": "1.0",
+  "description": "Remembers your last used signin option for each website to help you choose the same one next time.",
+  "permissions": ["storage", "activeTab"],
+  "background": {
+    "service_worker": "dist/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_title": "Last Used Login Helper"
+  }
+}
