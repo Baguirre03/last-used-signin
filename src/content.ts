@@ -17,6 +17,8 @@ const providers: LoginProvider[] = [
   { name: "Discord", keywords: ["discord"] },
   { name: "Amazon", keywords: ["amazon"] },
   { name: "Yahoo", keywords: ["yahoo"] },
+  { name: "Phone", keywords: ["phone"] },
+  { name: "Email", keywords: ["email"] },
 ];
 
 function detectProvider(element: Element): LoginProvider | null {
@@ -25,7 +27,9 @@ function detectProvider(element: Element): LoginProvider | null {
     element.getAttribute("title") ||
     element.getAttribute("aria-label") ||
     ""
-  ).toLowerCase();
+  )
+    .toLowerCase()
+    .trim();
   const href = element.getAttribute("href")?.toLowerCase() || "";
   const className = element.className.toLowerCase();
   const id = element.id.toLowerCase();
@@ -45,39 +49,57 @@ function getCurrentDomain(): string {
 }
 
 function addLastUsedMarker(element: Element, provider: LoginProvider): void {
-  // Remove existing marker if present
-  const existingMarker = element.querySelector(".last-used-marker");
-  if (existingMarker) {
-    existingMarker.remove();
-  }
+  const htmlElement = element as HTMLElement;
 
-  const marker = document.createElement("span");
-  marker.className = "last-used-marker";
-  marker.textContent = "⭐ Last used";
-  marker.style.cssText = `
-    margin-left: 6px;
-    font-size: 0.8em;
-    color: #ff6b35;
-    font-weight: 500;
-    background: rgba(255, 107, 53, 0.1);
-    padding: 2px 6px;
-    border-radius: 4px;
-    display: inline-block;
+  // Ensure unique id for this element and remove any previous marker tied to it
+  if (!(htmlElement as any)._lastUsedId) {
+    (htmlElement as any)._lastUsedId = Math.random().toString(36).slice(2, 9);
+  }
+  const elementId = (htmlElement as any)._lastUsedId as string;
+  const existing = document.querySelector(
+    `.last-used-marker[data-element-id="${elementId}"]`
+  );
+  if (existing) existing.remove();
+
+  htmlElement.style.cssText = `
+    ${htmlElement.style.cssText}
+    border: 2px solid #4A90E2 !important;
+    position: relative !important;
   `;
 
-  element.appendChild(marker);
+  const badge = document.createElement("span");
+  badge.className = "last-used-marker";
+  badge.setAttribute("data-element-id", elementId);
+  badge.textContent = "Last used";
+  badge.style.cssText = `
+    position: absolute;
+    font-size: 12px;
+    line-height: 1;
+    color: #111;
+    background: #fff;
+    padding: 4px 8px;
+    border-radius: 9999px;
+    border: 1px solid #4A90E2;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    white-space: nowrap;
+    pointer-events: none;
+  `;
+
+  htmlElement.style.overflow = "visible";
+  badge.style.top = "0";
+  badge.style.right = "0";
+  badge.style.transform = "translate(25%, -50%)";
+  htmlElement.appendChild(badge);
 }
 
 function setupLoginButton(element: Element, provider: LoginProvider): void {
   const domain = getCurrentDomain();
   const storageKey = `lastUsed_${domain}`;
 
-  // Add click listener to track usage
   element.addEventListener("click", () => {
     chrome.storage.local.set({ [storageKey]: provider.name });
   });
 
-  // Check if this was the last used provider for this domain
   chrome.storage.local.get(storageKey, (result) => {
     if (result[storageKey] === provider.name) {
       addLastUsedMarker(element, provider);
@@ -86,21 +108,18 @@ function setupLoginButton(element: Element, provider: LoginProvider): void {
 }
 
 function scanForLoginButtons(): void {
-  const selectors = [
-    "button",
-    'a[href*="login"]',
-    'a[href*="signin"]',
-    'a[href*="auth"]',
-    'input[type="submit"]',
-    ".login-btn",
-    ".signin-btn",
-    ".auth-btn",
-    '[role="button"]',
-  ].join(", ");
+  const selectors = ["button", '[role="button"]'].join(", ");
+  const formElements = document.querySelectorAll(
+    'form button, form input[type="submit"], form a'
+  );
+  const allElements = document.querySelectorAll(selectors);
 
-  const elements = document.querySelectorAll(selectors);
+  const combinedElements = new Set([
+    ...Array.from(allElements),
+    ...Array.from(formElements),
+  ]);
 
-  elements.forEach((element) => {
+  combinedElements.forEach((element) => {
     const provider = detectProvider(element);
     if (provider && !element.hasAttribute("data-login-tracked")) {
       element.setAttribute("data-login-tracked", "true");
@@ -109,14 +128,12 @@ function scanForLoginButtons(): void {
   });
 }
 
-// Initial scan
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", scanForLoginButtons);
 } else {
   scanForLoginButtons();
 }
 
-// Re-scan when new content is added (for SPAs)
 const observer = new MutationObserver((mutations) => {
   let shouldScan = false;
   mutations.forEach((mutation) => {

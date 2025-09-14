@@ -15,7 +15,6 @@
     }
   ],
   "action": {
-    "default_popup": "popup/index.html",
     "default_title": "Last Used Login Helper"
   }
 }
