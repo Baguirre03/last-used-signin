@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Last Used Login Helper",
+  "name": "Last Used Login",
   "version": "1.0",
   "description": "Remembers your last used signin option for each website to help you choose the same one next time.",
   "permissions": ["storage", "activeTab"],
@@ -14,7 +14,18 @@
       "run_at": "document_idle"
     }
   ],
+  "icons": {
+    "16": "public/enter.png",
+    "32": "public/enter.png",
+    "48": "public/enter.png",
+    "128": "public/enter.png"
+  },
   "action": {
-    "default_title": "Last Used Login Helper"
+    "default_title": "Last Used Login Helper",
+    "default_icon": {
+      "16": "public/enter.png",
+      "32": "public/enter.png",
+      "48": "public/enter.png"
+    }
   }
 }
