@@ -1,7 +1,7 @@
 "use strict";
 const providers = [
     { name: "Google", keywords: ["google", "gmail", "g+"] },
-    { name: "Facebook", keywords: ["facebook", "fb", "meta"] },
+    { name: "Facebook", keywords: ["facebook", "meta"] },
     { name: "GitHub", keywords: ["github", "git hub"] },
     { name: "Apple", keywords: ["apple", "icloud", "sign in with apple"] },
     {
